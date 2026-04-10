@@ -34,8 +34,6 @@ targets:
         NSBonjourServices:
           - _i2i-msg._tcp
         NSCameraUsageDescription: "i2i uses the camera to scan pairing QR codes."
-        NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.i2i.app

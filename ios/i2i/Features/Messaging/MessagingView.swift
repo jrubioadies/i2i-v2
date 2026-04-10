@@ -6,6 +6,13 @@ struct MessagingView: View {
     @State private var showNameEditor = false
     @State private var showRelaySettings = false
     @State private var relayURLDraft = ""
+    @FocusState private var focusedField: FocusedField?
+
+    private enum FocusedField: Hashable {
+        case message
+        case deviceName
+        case relayURL
+    }
 
     var body: some View {
         NavigationStack {
@@ -115,6 +122,7 @@ struct MessagingView: View {
                                 .padding(.vertical, 12)
                                 .padding(.horizontal, 8)
                             }
+                            .scrollDismissesKeyboard(.interactively)
                             .onChange(of: viewModel.messages.count, perform: { _ in
                                 if let lastMessage = viewModel.messages.last {
                                     withAnimation {
@@ -132,8 +140,14 @@ struct MessagingView: View {
                         TextField("Message", text: $viewModel.draft)
                             .textFieldStyle(.roundedBorder)
                             .lineLimit(3)
+                            .autocorrectionDisabled()
+                            .focused($focusedField, equals: .message)
+                            .submitLabel(.send)
+                            .onSubmit {
+                                sendMessage()
+                            }
                         
-                        Button(action: { viewModel.sendTapped() }) {
+                        Button(action: { sendMessage() }) {
                             Image(systemName: "paperplane.fill")
                                 .font(.title3)
                                 .foregroundStyle(.white)
@@ -149,11 +163,13 @@ struct MessagingView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Exit") {
+                        focusedField = nil
                         env.selectedTab = .peers
                     }
                 }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
+                        focusedField = nil
                         relayURLDraft = env.relayURLString
                         showRelaySettings = true
                     } label: {
@@ -188,9 +204,15 @@ struct MessagingView: View {
                 viewModel.loadMessagesForSelectedPeer()
             })
             .onChange(of: env.transportMode, perform: { _ in
+                focusedField = nil
                 viewModel.transportModeDidChange()
             })
         }
+    }
+
+    private func sendMessage() {
+        viewModel.sendTapped()
+        focusedField = nil
     }
 
     private var disconnectedStatusText: String {
@@ -247,6 +269,13 @@ struct MessagingView: View {
                     TextField("Device Name", text: $viewModel.pendingDisplayName)
                         .textFieldStyle(.roundedBorder)
                         .padding(.vertical, 8)
+                        .focused($focusedField, equals: .deviceName)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            viewModel.saveDeviceName()
+                            focusedField = nil
+                            showNameEditor = false
+                        }
                     
                     Text("This name will be shown to other devices when pairing.")
                         .font(.caption)
@@ -258,6 +287,7 @@ struct MessagingView: View {
                 
                 Button("Save") {
                     viewModel.saveDeviceName()
+                    focusedField = nil
                     showNameEditor = false
                 }
                 .buttonStyle(.borderedProminent)
@@ -268,7 +298,10 @@ struct MessagingView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { showNameEditor = false }
+                    Button("Cancel") {
+                        focusedField = nil
+                        showNameEditor = false
+                    }
                 }
             }
         }
@@ -280,22 +313,25 @@ struct MessagingView: View {
                 Text("Relay URL")
                     .font(.headline)
 
-                TextField("ws://192.168.1.60:8080/ws", text: $relayURLDraft)
+                TextField("wss://ws-relay-zi5u.onrender.com/ws", text: $relayURLDraft)
                     .textFieldStyle(.roundedBorder)
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
+                    .focused($focusedField, equals: .relayURL)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        saveRelaySettings()
+                    }
 
-                Text("Use your Mac LAN IP while testing on physical iPhones. Production should use wss://.")
+                Text("Use a wss:// relay URL for internet messaging across different networks.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
                 Button("Save Relay Settings") {
-                    env.relayURLString = relayURLDraft
-                    showRelaySettings = false
-                    viewModel.transportModeDidChange()
+                    saveRelaySettings()
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -304,9 +340,19 @@ struct MessagingView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { showRelaySettings = false }
+                    Button("Cancel") {
+                        focusedField = nil
+                        showRelaySettings = false
+                    }
                 }
             }
         }
+    }
+
+    private func saveRelaySettings() {
+        focusedField = nil
+        env.relayURLString = relayURLDraft
+        showRelaySettings = false
+        viewModel.transportModeDidChange()
     }
 }

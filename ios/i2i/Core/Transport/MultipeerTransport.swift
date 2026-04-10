@@ -23,6 +23,11 @@ final class MultipeerTransport: NSObject, TransportProtocol {
     }
     
     func start() async throws {
+        if session != nil {
+            print("[MultipeerTransport] Start ignored because MultipeerConnectivity is already running")
+            return
+        }
+
         if let currentDeviceId = identityService.current?.deviceId.uuidString,
            currentDeviceId != peerID.displayName {
             peerID = MCPeerID(displayName: currentDeviceId)

@@ -53,6 +53,33 @@ Example response:
 }
 ```
 
+## Deploy on Render
+
+Use a Web Service, not a static site.
+
+If configuring it manually in Render:
+
+```text
+Root Directory: phase-2-internet-relay/backend
+Build Command: npm install
+Start Command: npm start
+Health Check Path: /health
+```
+
+Render injects the `PORT` environment variable automatically. The server reads it with `process.env.PORT`, so do not hard-code port `8080` in Render.
+
+After deploy, verify:
+
+```bash
+curl https://<your-render-service>.onrender.com/health
+```
+
+The iOS relay URL should use WebSocket TLS:
+
+```text
+wss://<your-render-service>.onrender.com/ws
+```
+
 ## Message Privacy
 
 The relay treats `body` as opaque ciphertext. It routes by `receiverDeviceId` and does not decrypt or inspect message content.

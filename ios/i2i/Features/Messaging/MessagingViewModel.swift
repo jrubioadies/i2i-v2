@@ -106,7 +106,8 @@ final class MessagingViewModel: ObservableObject {
     }
     
     private func updateConnectedPeers() {
-        connectedPeerIds = transport?.getConnectedPeerIds() ?? []
+        let activeTransport = appEnvironment?.activeTransport ?? transport
+        connectedPeerIds = activeTransport?.getConnectedPeerIds() ?? []
     }
     
     func selectPeer(_ peer: Peer) {
@@ -122,6 +123,7 @@ final class MessagingViewModel: ObservableObject {
 
     func reconnect() {
         guard let appEnvironment else { return }
+        transport = appEnvironment.activeTransport
         Task {
             await appEnvironment.startTransportIfNeeded()
             updateConnectedPeers()
@@ -166,7 +168,11 @@ final class MessagingViewModel: ObservableObject {
         
         Task {
             do {
-                try await transport?.send(message, to: sendPeer)
+                guard let appEnvironment else { return }
+                await appEnvironment.startTransportIfNeeded()
+                let activeTransport = appEnvironment.activeTransport
+                transport = activeTransport
+                try await activeTransport.send(message, to: sendPeer)
                 var sentMessage = message
                 sentMessage.status = .sent
                 try messageRepository?.save(sentMessage)

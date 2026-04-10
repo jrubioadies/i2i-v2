@@ -25,7 +25,7 @@ enum TransportMode: String, CaseIterable, Identifiable {
 /// Shared service container. Injected as @EnvironmentObject from i2iApp.
 @MainActor
 final class AppEnvironment: ObservableObject {
-    private static let defaultRelayURLString = "ws://192.168.1.60:8080/ws"
+    private static let defaultRelayURLString = "wss://ws-relay-zi5u.onrender.com/ws"
     private static let relayURLDefaultsKey = "relayURLString"
     private static let transportModeDefaultsKey = "transportMode"
 
@@ -57,6 +57,7 @@ final class AppEnvironment: ObservableObject {
     }
     @Published var relayURLString: String {
         didSet {
+            relayURLString = AppEnvironment.normalizeRelayURLString(relayURLString)
             guard oldValue != relayURLString else { return }
             UserDefaults.standard.set(relayURLString, forKey: AppEnvironment.relayURLDefaultsKey)
             updateRelayURL()
@@ -69,13 +70,15 @@ final class AppEnvironment: ObservableObject {
     private let pathMonitorQueue = DispatchQueue(label: "i2i.network-monitor")
     private var hasBootstrapped = false
     private var startedTransportMode: TransportMode?
+    private var startingTransportMode: TransportMode?
+    private var transportGeneration = 0
 
     init() {
         let identity = IdentityService()
         let peers = LocalPeerRepository()
         let messages = LocalMessageRepository()
         let storedRelayURL = UserDefaults.standard.string(forKey: AppEnvironment.relayURLDefaultsKey)
-        let relayURLString = storedRelayURL ?? AppEnvironment.defaultRelayURLString
+        let relayURLString = Self.normalizeRelayURLString(storedRelayURL ?? AppEnvironment.defaultRelayURLString)
         let relayURL = URL(string: relayURLString) ?? URL(string: AppEnvironment.defaultRelayURLString)!
         let storedMode = UserDefaults.standard.string(forKey: AppEnvironment.transportModeDefaultsKey)
         let transportMode = storedMode.flatMap(TransportMode.init(rawValue:)) ?? .relay
@@ -113,20 +116,35 @@ final class AppEnvironment: ObservableObject {
     }
 
     func startTransportIfNeeded() async {
-        guard startedTransportMode != transportMode else { return }
-        startedTransportMode = transportMode
+        let mode = transportMode
+        let generation = transportGeneration
+        guard startedTransportMode != mode, startingTransportMode != mode else { return }
+        startingTransportMode = mode
+        defer {
+            if startingTransportMode == mode {
+                startingTransportMode = nil
+            }
+        }
 
         do {
-            try await activeTransport.start()
+            let transport = transport(for: mode)
+            try await transport.start()
+            guard transportGeneration == generation, transportMode == mode else {
+                transport.stop()
+                return
+            }
+            startedTransportMode = mode
         } catch {
-            startedTransportMode = nil
             print("Failed to start transport: \(error)")
+            return
         }
     }
 
     func stopTransport() {
+        transportGeneration += 1
         activeTransport.stop()
         startedTransportMode = nil
+        startingTransportMode = nil
     }
     
     func notifyPeerChanged() {
@@ -134,9 +152,18 @@ final class AppEnvironment: ObservableObject {
     }
 
     private func stopAllTransports() {
+        transportGeneration += 1
         localTransport.stop()
         internetRelayTransport.stop()
         startedTransportMode = nil
+        startingTransportMode = nil
+    }
+
+    private func transport(for mode: TransportMode) -> any TransportProtocol {
+        switch mode {
+        case .local: return localTransport
+        case .relay: return internetRelayTransport
+        }
     }
 
     private func updateRelayURL() {
@@ -145,11 +172,32 @@ final class AppEnvironment: ObservableObject {
             return
         }
 
+        transportGeneration += 1
         internetRelayTransport.updateRelayURL(relayURL)
         if transportMode == .relay {
             startedTransportMode = nil
+            startingTransportMode = nil
         }
         startActiveTransportWhenAvailable()
+    }
+
+    private static func normalizeRelayURLString(_ rawURLString: String) -> String {
+        var value = rawURLString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return defaultRelayURLString }
+
+        if value.hasPrefix("http://") {
+            value = "wss://" + value.dropFirst("http://".count)
+        } else if value.hasPrefix("https://") {
+            value = "wss://" + value.dropFirst("https://".count)
+        } else if value.hasPrefix("ws://ws-relay-zi5u.onrender.com") {
+            value = "wss://" + value.dropFirst("ws://".count)
+        }
+
+        if value == "wss://ws-relay-zi5u.onrender.com" || value == "wss://ws-relay-zi5u.onrender.com/" {
+            return "wss://ws-relay-zi5u.onrender.com/ws"
+        }
+
+        return value
     }
 
     private func configureTransportCallbacks() {
