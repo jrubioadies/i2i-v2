@@ -1,0 +1,42 @@
+name: i2i
+options:
+  bundleIdPrefix: com.i2i
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: 4GH5R96VHF
+
+targets:
+  i2i:
+    type: application
+    platform: iOS
+    sources:
+      - i2i
+    resources:
+      - i2i/Assets.xcassets
+    info:
+      path: i2i/Info.plist
+      properties:
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        "UISupportedInterfaceOrientations~ipad":
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSLocalNetworkUsageDescription: "i2i uses your local network to communicate with paired devices."
+        NSBonjourServices:
+          - _i2i-msg._tcp
+        NSCameraUsageDescription: "i2i uses the camera to scan pairing QR codes."
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.i2i.app
+        TARGETED_DEVICE_FAMILY: 1

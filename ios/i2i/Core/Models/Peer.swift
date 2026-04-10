@@ -1,0 +1,15 @@
+import Foundation
+
+struct Peer: Identifiable, Codable, Hashable {
+    let id: UUID
+    var displayName: String
+    let publicKey: Data
+    var encryptionPublicKey: Data?
+    let pairingDate: Date
+    var trustStatus: TrustStatus
+
+    enum TrustStatus: String, Codable {
+        case trusted
+        case revoked
+    }
+}
