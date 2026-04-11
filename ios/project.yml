@@ -38,3 +38,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.i2i.app
         TARGETED_DEVICE_FAMILY: 1
+      configurations:
+        Release:
+          PROVISIONING_PROFILE_SPECIFIER: "i2i Ad-Hoc Distribution"
+          CODE_SIGN_STYLE: Automatic

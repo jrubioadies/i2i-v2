@@ -1,0 +1,79 @@
+name: Firebase App Distribution
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*', 'release-*']
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes for this build'
+        required: false
+        default: 'v3.1 — Conversaciones independientes'
+
+jobs:
+  distribute:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          xcodegen generate
+
+      - name: Build archive
+        run: |
+          cd ios
+          xcodebuild archive \
+            -scheme i2i \
+            -archivePath ../build/i2i.xcarchive \
+            -configuration Release \
+            -allowProvisioningUpdates
+
+      - name: Export .ipa
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/i2i.xcarchive \
+            -exportOptionsPlist scripts/ExportOptions.plist \
+            -exportPath build/ \
+            -allowProvisioningUpdates
+
+      - name: Distribute to Firebase
+        run: |
+          RELEASE_NOTES="${{ github.event.inputs.release_notes }}"
+          if [ -z "$RELEASE_NOTES" ]; then
+            if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+              RELEASE_NOTES="${{ github.ref_name }}"
+            else
+              RELEASE_NOTES="Build from ${{ github.sha }} on ${{ github.ref_name }}"
+            fi
+          fi
+
+          firebase appdistribution:distribute build/i2i.ipa \
+            --app "${{ secrets.FIREBASE_APP_ID }}" \
+            --groups "beta-testers" \
+            --release-notes "$RELEASE_NOTES"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Upload .ipa as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i2i.ipa
+          path: build/i2i.ipa
+          retention-days: 30
