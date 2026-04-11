@@ -140,8 +140,11 @@ extension MultipeerTransport: MCSessionDelegate {
     ) {
         do {
             let payload = try JSONDecoder().decode(MessagePayload.self, from: data)
+            // Generate a deterministic conversationId based on the peer pair (ordered)
+            let conversationId = Self.makeConversationId(sender: payload.senderPeerId, receiver: payload.receiverPeerId)
             let message = Message(
                 id: payload.id,
+                conversationId: conversationId,
                 senderPeerId: payload.senderPeerId,
                 receiverPeerId: payload.receiverPeerId,
                 timestamp: payload.timestamp,
@@ -152,6 +155,20 @@ extension MultipeerTransport: MCSessionDelegate {
         } catch {
             print("Failed to decode message: \(error)")
         }
+    }
+
+    // Generate a deterministic conversation ID based on peer pair
+    private static func makeConversationId(sender: UUID, receiver: UUID) -> UUID {
+        // Sort the UUIDs to ensure consistency regardless of direction
+        let ids = [sender, receiver].sorted { $0.uuidString < $1.uuidString }
+        let combined = ids[0].uuidString + ids[1].uuidString
+        // Create a deterministic UUID using a namespace-like approach
+        // For simplicity, use the first half of the combined string as a UUID
+        if let deterministicId = UUID(uuidString: combined.prefix(36).replacingOccurrences(of: " ", with: "0")) {
+            return deterministicId
+        }
+        // Fallback: just use sender's UUID (shouldn't happen)
+        return sender
     }
     
     func session(

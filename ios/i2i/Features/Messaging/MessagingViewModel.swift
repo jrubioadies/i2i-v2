@@ -6,7 +6,9 @@ final class MessagingViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var draft: String = ""
     @Published var peers: [Peer] = []
+    @Published var conversations: [Conversation] = []
     @Published var selectedPeer: Peer?
+    @Published var selectedConversation: Conversation?
     @Published var connectedPeerIds: [String] = []
     @Published var deviceName: String = ""
     @Published var pendingDisplayName: String = ""
@@ -32,6 +34,7 @@ final class MessagingViewModel: ObservableObject {
     private weak var identityService: IdentityService?
     private weak var peerRepository: (any PeerRepository)?
     private weak var messageRepository: (any MessageRepository)?
+    private weak var conversationRepository: (any ConversationRepository)?
     private weak var transport: (any TransportProtocol)?
     private weak var appEnvironment: AppEnvironment?
     private var updateTimer: Timer?
@@ -51,6 +54,7 @@ final class MessagingViewModel: ObservableObject {
         self.identityService = env.identityService
         self.peerRepository = env.peerRepository
         self.messageRepository = env.messageRepository
+        self.conversationRepository = env.conversationRepository
         self.transport = env.activeTransport
         self.appEnvironment = env
         
@@ -110,11 +114,21 @@ final class MessagingViewModel: ObservableObject {
         connectedPeerIds = activeTransport?.getConnectedPeerIds() ?? []
     }
     
+    func loadConversations() {
+        guard let repository = conversationRepository else { return }
+        conversations = repository.loadAll()
+    }
+
+    func selectConversation(_ conversation: Conversation) {
+        selectedConversation = conversation
+        messages = messageRepository?.loadConversation(conversationId: conversation.id) ?? []
+    }
+
     func selectPeer(_ peer: Peer) {
         selectedPeer = peer
         loadMessagesForSelectedPeer()
     }
-    
+
     func disconnect() {
         appEnvironment?.stopTransport()
         connectedPeerIds = []
@@ -156,9 +170,25 @@ final class MessagingViewModel: ObservableObject {
         errorMessage = nil
         loadPeers()
         let sendPeer = selectedPeer ?? peer
-        
+
+        // Get or create conversation for this peer
+        let conversation = conversationRepository?.loadOrCreateDirect(peerId: sendPeer.id)
+            ?? Conversation(
+                id: UUID(),
+                type: .direct,
+                displayName: sendPeer.displayName,
+                peerId: sendPeer.id,
+                groupId: nil,
+                lastMessageId: nil,
+                lastMessageAt: nil,
+                unreadCount: 0,
+                createdAt: Date(),
+                updatedAt: Date()
+            )
+
         let message = Message(
             id: UUID(),
+            conversationId: conversation.id,
             senderPeerId: localDeviceId,
             receiverPeerId: sendPeer.id,
             timestamp: Date(),

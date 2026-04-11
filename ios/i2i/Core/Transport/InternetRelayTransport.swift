@@ -168,9 +168,11 @@ final class InternetRelayTransport: NSObject, TransportProtocol {
                 return
             }
 
+            let conversationId = Self.makeConversationId(sender: envelope.senderDeviceId, receiver: envelope.receiverDeviceId)
             onMessageReceived?(
                 Message(
                     id: envelope.messageId,
+                    conversationId: conversationId,
                     senderPeerId: envelope.senderDeviceId,
                     receiverPeerId: envelope.receiverDeviceId,
                     timestamp: envelope.timestamp,
@@ -187,6 +189,20 @@ final class InternetRelayTransport: NSObject, TransportProtocol {
             }
             print("[InternetRelayTransport] Relay event: \(receipt.type) \(receipt.status ?? "")")
         }
+    }
+
+    // Generate a deterministic conversation ID based on peer pair
+    private static func makeConversationId(sender: UUID, receiver: UUID) -> UUID {
+        // Sort the UUIDs to ensure consistency regardless of direction
+        let ids = [sender, receiver].sorted { $0.uuidString < $1.uuidString }
+        let combined = ids[0].uuidString + ids[1].uuidString
+        // Create a deterministic UUID using a namespace-like approach
+        // For simplicity, use the first half of the combined string as a UUID
+        if let deterministicId = UUID(uuidString: combined.prefix(36).replacingOccurrences(of: " ", with: "0")) {
+            return deterministicId
+        }
+        // Fallback: just use sender's UUID (shouldn't happen)
+        return sender
     }
 
     enum InternetRelayError: Error {

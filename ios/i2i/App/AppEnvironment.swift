@@ -33,6 +33,7 @@ final class AppEnvironment: ObservableObject {
     let pairingService: PairingService
     let peerRepository: any PeerRepository
     let messageRepository: any MessageRepository
+    let conversationRepository: any ConversationRepository
     let localTransport: MultipeerTransport
     let internetRelayTransport: InternetRelayTransport
 
@@ -76,7 +77,8 @@ final class AppEnvironment: ObservableObject {
     init() {
         let identity = IdentityService()
         let peers = LocalPeerRepository()
-        let messages = LocalMessageRepository()
+        let conversations = LocalConversationRepository(peerRepository: peers)
+        let messages = LocalMessageRepository(conversationRepository: conversations)
         let storedRelayURL = UserDefaults.standard.string(forKey: AppEnvironment.relayURLDefaultsKey)
         let relayURLString = Self.normalizeRelayURLString(storedRelayURL ?? AppEnvironment.defaultRelayURLString)
         let relayURL = URL(string: relayURLString) ?? URL(string: AppEnvironment.defaultRelayURLString)!
@@ -85,6 +87,7 @@ final class AppEnvironment: ObservableObject {
         self.identityService = identity
         self.peerRepository = peers
         self.messageRepository = messages
+        self.conversationRepository = conversations
         self.pairingService = PairingService(identityService: identity, peerRepository: peers)
         self.localTransport = MultipeerTransport(identityService: identity)
         self.internetRelayTransport = InternetRelayTransport(

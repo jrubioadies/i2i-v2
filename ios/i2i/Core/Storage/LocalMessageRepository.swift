@@ -2,20 +2,26 @@ import Foundation
 
 final class LocalMessageRepository: MessageRepository {
     private let fileURL: URL
+    private let conversationRepository: ConversationRepository
 
-    init() {
+    init(conversationRepository: ConversationRepository) {
         let support = FileManager.default
             .urls(for: .applicationSupportDirectory, in: .userDomainMask)
             .first!
         fileURL = support.appendingPathComponent("messages.json")
+        self.conversationRepository = conversationRepository
     }
 
+    // Legacy: load messages for a peer pair, auto-creating conversation if needed
     func loadConversation(localPeerId: UUID, remotePeerId: UUID) -> [Message] {
+        let conversation = conversationRepository.loadOrCreateDirect(peerId: remotePeerId)
+        return loadConversation(conversationId: conversation.id)
+    }
+
+    // New: load messages by conversationId
+    func loadConversation(conversationId: UUID) -> [Message] {
         loadAll()
-            .filter { message in
-                (message.senderPeerId == localPeerId && message.receiverPeerId == remotePeerId) ||
-                (message.senderPeerId == remotePeerId && message.receiverPeerId == localPeerId)
-            }
+            .filter { $0.conversationId == conversationId }
             .sorted { $0.timestamp < $1.timestamp }
     }
 

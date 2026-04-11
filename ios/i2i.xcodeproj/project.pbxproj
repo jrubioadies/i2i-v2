@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0186D6F5990B08BFFB8B7E75 /* PairingPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C861900F6F38D128CF66FE /* PairingPayload.swift */; };
+		01EFDD14EB7547230E529194 /* LocalConversationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0861774200845D6FE4967E04 /* LocalConversationRepository.swift */; };
 		03A2C3996B521DB7403A24F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FD8A225AF402212B85F6FF7 /* Assets.xcassets */; };
 		1010110340CADBD9E06B4B2C /* IdentityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239E86AED9CA7A494EDB9309 /* IdentityService.swift */; };
 		142C2D6183A2DC7F19880789 /* PeerRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8306DC97EFB6425119D1C7C /* PeerRepository.swift */; };
@@ -33,20 +34,25 @@
 		BB75594FFB449A41928034DE /* LocalMessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91654BB88EA6605B74CFF262 /* LocalMessageRepository.swift */; };
 		C5D801012D2E300A8F155FF4 /* PairingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AF8CF9CA2A8B333E7910F8 /* PairingService.swift */; };
 		CA332CF5D6BA18FE77A5B6D3 /* TransportProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B64134E14EF47578D320A14 /* TransportProtocol.swift */; };
+		CFC4CCD87BC0E08EA1CF5D3E /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69201EA6F0F62AD59C09DFAB /* Conversation.swift */; };
 		D03F7D3CACD8D4DC38CAA604 /* MessageEncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 261EFC818ADE250947746E30 /* MessageEncryptionService.swift */; };
 		D1949FB723739A8748AF52A8 /* i2iApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 802D56BDE5BE8A8EA28CDBD3 /* i2iApp.swift */; };
 		D43CA5E300F7E0D666523502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A676E28D9E60D35A3B7241 /* ContentView.swift */; };
 		D85D0AE76B6F41E70603C812 /* MessageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606B8B47883798C8861EC385 /* MessageRepository.swift */; };
 		DC64A518391C1E8AC2CD7F8E /* IdentityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B2F5AAFB0F9965083C3BD0 /* IdentityView.swift */; };
 		E3B9DADDA841217D21B9859E /* IdentityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EDBBE2114706675691170D6 /* IdentityRepository.swift */; };
+		EC876570041B0B45C1620E71 /* ConversationListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753771AB5C13FB16671DD3E1 /* ConversationListView.swift */; };
 		EE453CE6A1D040F6F702B803 /* MessagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56606A862C3A3A1317665C49 /* MessagingView.swift */; };
+		F08C128D87079944454D6A22 /* ConversationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F363E9EC27BFC6E09E5FEE /* ConversationRepository.swift */; };
 		F93F8EA0FF0FEEE0BCA88D6B /* PairingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26EB8FEDCCB9FD1D288DC27 /* PairingViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0861774200845D6FE4967E04 /* LocalConversationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalConversationRepository.swift; sourceTree = "<group>"; };
 		090C1685FDFE694BAEB2FD68 /* MessagingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingViewModel.swift; sourceTree = "<group>"; };
 		0A1588B7AD15CD43AE80E9DD /* LocalIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalIdentity.swift; sourceTree = "<group>"; };
 		239E86AED9CA7A494EDB9309 /* IdentityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityService.swift; sourceTree = "<group>"; };
+		23F363E9EC27BFC6E09E5FEE /* ConversationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRepository.swift; sourceTree = "<group>"; };
 		261EFC818ADE250947746E30 /* MessageEncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEncryptionService.swift; sourceTree = "<group>"; };
 		27E6DF45A6D55B3C73931201 /* Peer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Peer.swift; sourceTree = "<group>"; };
 		28955A38290923B283424925 /* KeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyStore.swift; sourceTree = "<group>"; };
@@ -62,7 +68,9 @@
 		604F68AAA78CC39A64E94158 /* i2i.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = i2i.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		606B8B47883798C8861EC385 /* MessageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageRepository.swift; sourceTree = "<group>"; };
 		645D0CD264A231AADEC52DA9 /* PairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingView.swift; sourceTree = "<group>"; };
+		69201EA6F0F62AD59C09DFAB /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		72D00FA1D2D847EB43762000 /* MultipeerTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipeerTransport.swift; sourceTree = "<group>"; };
+		753771AB5C13FB16671DD3E1 /* ConversationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationListView.swift; sourceTree = "<group>"; };
 		781E2A49D6031970FB27B7F8 /* IdentityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityViewModel.swift; sourceTree = "<group>"; };
 		785EB48C15E93BE1D10C3460 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		802D56BDE5BE8A8EA28CDBD3 /* i2iApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = i2iApp.swift; sourceTree = "<group>"; };
@@ -113,6 +121,7 @@
 		2D7A23523ABBF1C21AB0746E /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				D0B5B122C00626B3D0B0C54F /* Conversations */,
 				56464785D77B649E685A1412 /* Identity */,
 				4298A67F758077D15D8B3A54 /* Messaging */,
 				2D2A3E9991001BC622BE9690 /* Pairing */,
@@ -195,7 +204,9 @@
 		A9C6D03261EF9AEA42D9BE81 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				23F363E9EC27BFC6E09E5FEE /* ConversationRepository.swift */,
 				3EDBBE2114706675691170D6 /* IdentityRepository.swift */,
+				0861774200845D6FE4967E04 /* LocalConversationRepository.swift */,
 				4FDCCE2478BBE5DB6AB1CF53 /* LocalIdentityRepository.swift */,
 				91654BB88EA6605B74CFF262 /* LocalMessageRepository.swift */,
 				F0C27A1D140A88A8A0C2056E /* LocalPeerRepository.swift */,
@@ -216,9 +227,18 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		D0B5B122C00626B3D0B0C54F /* Conversations */ = {
+			isa = PBXGroup;
+			children = (
+				753771AB5C13FB16671DD3E1 /* ConversationListView.swift */,
+			);
+			path = Conversations;
+			sourceTree = "<group>";
+		};
 		EBAE77E429427DAC42EE6A20 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				69201EA6F0F62AD59C09DFAB /* Conversation.swift */,
 				0A1588B7AD15CD43AE80E9DD /* LocalIdentity.swift */,
 				96AFE6B52010E0E237815EE6 /* Message.swift */,
 				50C861900F6F38D128CF66FE /* PairingPayload.swift */,
@@ -317,6 +337,9 @@
 			files = (
 				86B7CFC14071AA8A1029429F /* AppEnvironment.swift in Sources */,
 				D43CA5E300F7E0D666523502 /* ContentView.swift in Sources */,
+				CFC4CCD87BC0E08EA1CF5D3E /* Conversation.swift in Sources */,
+				EC876570041B0B45C1620E71 /* ConversationListView.swift in Sources */,
+				F08C128D87079944454D6A22 /* ConversationRepository.swift in Sources */,
 				694C57F70D42A982ACF60C5B /* EmptyStateView.swift in Sources */,
 				E3B9DADDA841217D21B9859E /* IdentityRepository.swift in Sources */,
 				1010110340CADBD9E06B4B2C /* IdentityService.swift in Sources */,
@@ -324,6 +347,7 @@
 				A03A99CB2300FA0B55E739A7 /* IdentityViewModel.swift in Sources */,
 				293A4ED9244A26699EE7FCCE /* InternetRelayTransport.swift in Sources */,
 				BAD1DCE19E2AB2EED7428173 /* KeyStore.swift in Sources */,
+				01EFDD14EB7547230E529194 /* LocalConversationRepository.swift in Sources */,
 				A9079057A5D386905B57815E /* LocalIdentity.swift in Sources */,
 				18ABDAE5B6B10F4159821780 /* LocalIdentityRepository.swift in Sources */,
 				BB75594FFB449A41928034DE /* LocalMessageRepository.swift in Sources */,
